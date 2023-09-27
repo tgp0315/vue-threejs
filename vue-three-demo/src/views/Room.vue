@@ -20,7 +20,6 @@
   })
   const loadgltf = () => {
     new GLTFLoader().load('../../public/model/Isometric.glb', g => {
-      // console.log(g, GUI)
       const obj1 = g.scene
       obj1.rotation.x = 0
       obj1.rotation.y = -0.8
@@ -51,19 +50,48 @@
   }
 
   const addLight = () =>{
-    let light = new THREE.AmbientLight(0xffffff, 0.6)
+    let light = new THREE.AmbientLight(0xffffff, 0.7)
     base.scene.add(light)
 
     let dirLight = new THREE.DirectionalLight()
     dirLight.castShadow = true
+    // 处理阴影的平滑
+    dirLight.shadow.mapSize.set(2024, 2024)
     base.scene.add(dirLight)
   }
+  // 纹理加载器
+  let textureLoader = new THREE.TextureLoader()
 
   const addShadow = (obj) => {
     obj.forEach(val => {
+      console.log(val)
       if (val instanceof THREE.Mesh) {
         val.castShadow = true
         val.receiveShadow = true
+        if (val.name.includes('Pape')) {
+          // console.log(val)
+          val.material.map = textureLoader.load(`../../public/img/Photo_-_2.jpg`)
+        }
+        if (val.name === 'Plane014_1') {
+          console.log(val)
+          let video = document.createElement('video')
+          video.src = '../../public/video.mp4'
+          video.loop = true
+          video.muted = true
+          video.play()
+          const videoTexture = new THREE.VideoTexture(video)
+          videoTexture.minFilter = THREE.NearestFilter
+          videoTexture.magFilter = THREE.NearestFilter
+          videoTexture.generateMipmaps = false
+          videoTexture.encoding = THREE.sRGBEncoding
+          // videoTexture.center = new THREE.Vector2(0.5, 0.5)
+          videoTexture.rotation = Math.PI / 2
+          const videoMaterial = new THREE.MeshBasicMaterial({
+            map: videoTexture,
+          });
+          val.material = videoMaterial
+          // val.material.map = textureLoader.load(`../../public/img/Photo_-_2.jpg`)
+        }
       } else {
         if (val.children) {
           addShadow(val.children)
@@ -71,6 +99,7 @@
       }
     })
   }
+  
   
 </script>
   
